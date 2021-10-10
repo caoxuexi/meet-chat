@@ -21,8 +21,6 @@ public class CaoJSONResult {
 
     // 响应中的数据
     private Object data;
-    
-    private String ok;	// 不使用
 
     public static CaoJSONResult build(Integer status, String msg, Object data) {
         return new CaoJSONResult(status, msg, data);
@@ -56,9 +54,6 @@ public class CaoJSONResult {
 
     }
 
-//    public static LeeJSONResult build(Integer status, String msg) {
-//        return new LeeJSONResult(status, msg, null);
-//    }
 
     public CaoJSONResult(Integer status, String msg, Object data) {
         this.status = status;
@@ -99,13 +94,5 @@ public class CaoJSONResult {
     public void setData(Object data) {
         this.data = data;
     }
-
-	public String getOk() {
-		return ok;
-	}
-
-	public void setOk(String ok) {
-		this.ok = ok;
-	}
 
 }
