@@ -12,6 +12,7 @@ import tk.mybatis.spring.annotation.MapperScan;
  */
 @SpringBootApplication
 @MapperScan(basePackages = "com.caostudy.mapper")
+@ComponentScan(basePackages = {"com.caostudy","org.n3r.idworker"})
 public class ChatApplication {
     public static void main(String[] args) {
         SpringApplication.run(ChatApplication.class,args);
