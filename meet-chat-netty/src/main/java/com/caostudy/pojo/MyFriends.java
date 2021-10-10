@@ -1,6 +1,8 @@
 package com.caostudy.pojo;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Table(name = "my_friends")
 public class MyFriends {
