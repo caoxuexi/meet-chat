@@ -1,0 +1,45 @@
+#定义运行接口
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+
+#fdfs分布式文件系统
+fdfs:
+  connectTimeout: 601
+  soTimeout: 1501
+  thumbImage:
+    height: 80
+    width: 80
+  trackerList:
+    - 192.168.20.161:22122
+
+#
+mapper:
+  identity: MYSQL
+  mappers: com.caostudy.utils.MyMapper
+  not-empty: false
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.caostudy.pojo
+pagehelper:
+  helperDialect: mysql
+  params: count=countSql
+  supportMethodsArguments: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      auto-commit: true
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 28740000
+      maximum-pool-size: 15
+      minimum-idle: 5
+      pool-name: DatebookHikariCP
+    type: com.zaxxer.hikari.HikariDataSource
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/muxin-dev?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
