@@ -8,6 +8,7 @@ server:
 fdfs:
   connectTimeout: 601
   soTimeout: 1501
+  # 缩略图
   thumbImage:
     height: 80
     width: 80

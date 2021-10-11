@@ -29,4 +29,11 @@ public interface UserService {
      * @return
      */
     Users saveUser(Users user);
+
+    /**
+     *
+     * @param user
+     * @return
+     */
+    Users updateUserInfo(Users user);
 }
