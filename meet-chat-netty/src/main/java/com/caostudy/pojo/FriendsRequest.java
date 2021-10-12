@@ -17,7 +17,7 @@ public class FriendsRequest {
     private Date requestDateTime;
 
     @Column(name = "accept_user_id")
-    private byte[] acceptUserId;
+    private String acceptUserId;
 
     /**
      * @return id
@@ -64,14 +64,14 @@ public class FriendsRequest {
     /**
      * @return accept_user_id
      */
-    public byte[] getAcceptUserId() {
+    public String getAcceptUserId() {
         return acceptUserId;
     }
 
     /**
      * @param acceptUserId
      */
-    public void setAcceptUserId(byte[] acceptUserId) {
+    public void setAcceptUserId(String acceptUserId) {
         this.acceptUserId = acceptUserId;
     }
 }

@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUtils {
 	/**
 	 * 根据url拿取file
-	 * 
 	 * @param url
 	 * @param suffix
 	 *            文件后缀名

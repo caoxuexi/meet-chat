@@ -8,6 +8,6 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="send_user_id" jdbcType="VARCHAR" property="sendUserId" />
     <result column="request_date_time" jdbcType="TIMESTAMP" property="requestDateTime" />
-    <result column="accept_user_id" jdbcType="VARBINARY" property="acceptUserId" />
+    <result column="accept_user_id" jdbcType="VARCHAR" property="acceptUserId" />
   </resultMap>
 </mapper>
