@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -104,21 +105,21 @@ public class UserController {
 
         return CaoJSONResult.ok(result);
     }
-//
-//    /**
-//     * @Description: 设置用户昵称
-//     */
-//    @PostMapping("/setNickname")
-//    public CaoJSONResult setNickname(@RequestBody UsersBO userBO) throws Exception {
-//
-//        Users user = new Users();
-//        user.setId(userBO.getUserId());
-//        user.setNickname(userBO.getNickname());
-//
-//        Users result = userService.updateUserInfo(user);
-//
-//        return CaoJSONResult.ok(result);
-//    }
+
+    /**
+     * @Description: 设置用户昵称
+     */
+    @PostMapping("/setNickname")
+    public CaoJSONResult setNickname(@RequestBody UsersBO userBO) throws Exception {
+
+        Users user = new Users();
+        user.setId(userBO.getUserId());
+        user.setNickname(userBO.getNickname());
+
+        Users result = userService.updateUserInfo(user);
+
+        return CaoJSONResult.ok(result);
+    }
 
     /**
      * @Description: 搜索好友接口, 根据账号做匹配查询而不是模糊查询

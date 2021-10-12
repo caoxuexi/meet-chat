@@ -67,7 +67,7 @@ public class FastDFSClient {
 	/**
 	 * 将一段字符串生成一个文件上传
 	 * @param content 文件内容
-	 * @param fileExtension
+	 * @param fileExtension 文件拓展名
 	 * @return
 	 */
 	public String uploadFile(String content, String fileExtension) {
