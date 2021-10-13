@@ -1,9 +1,11 @@
 package com.caostudy.controller;
 
+import com.caostudy.enums.OperatorFriendRequestTypeEnum;
 import com.caostudy.enums.SearchFriendsStatusEnum;
 import com.caostudy.pojo.ChatMsg;
 import com.caostudy.pojo.Users;
 import com.caostudy.pojo.bo.UsersBO;
+import com.caostudy.pojo.vo.MyFriendsVO;
 import com.caostudy.pojo.vo.UsersVO;
 import com.caostudy.service.UserService;
 import com.caostudy.utils.CaoJSONResult;
@@ -180,52 +182,50 @@ public class UserController {
     /**
      * @Description: 发送添加好友的请求
      */
-//    @PostMapping("/queryFriendRequests")
-//    public CaoJSONResult queryFriendRequests(String userId) {
-//
-//        // 0. 判断不能为空
-//        if (StringUtils.isBlank(userId)) {
-//            return CaoJSONResult.errorMsg("");
-//        }
-//
-//        // 1. 查询用户接受到的朋友申请
-//        return CaoJSONResult.ok(userService.queryFriendRequestList(userId));
-//    }
+    @PostMapping("/queryFriendRequests")
+    public CaoJSONResult queryFriendRequests(String userId) {
+        // 0. 判断不能为空
+        if (StringUtils.isBlank(userId)) {
+            return CaoJSONResult.errorMsg("");
+        }
+        // 1. 查询用户接受到的朋友申请
+        return CaoJSONResult.ok(userService.queryFriendRequestList(userId));
+    }
 
 
     /**
      * @Description: 接受方 通过或者忽略朋友请求
      */
-//    @PostMapping("/operFriendRequest")
-//    public CaoJSONResult operFriendRequest(String acceptUserId, String sendUserId,
-//                                             Integer operType) {
-//
-//        // 0. acceptUserId sendUserId operType 判断不能为空
-//        if (StringUtils.isBlank(acceptUserId)
-//                || StringUtils.isBlank(sendUserId)
-//                || operType == null) {
-//            return CaoJSONResult.errorMsg("");
-//        }
-//
-//        // 1. 如果operType 没有对应的枚举值，则直接抛出空错误信息
-//        if (StringUtils.isBlank(OperatorFriendRequestTypeEnum.getMsgByType(operType))) {
-//            return CaoJSONResult.errorMsg("");
-//        }
-//
-//        if (operType == OperatorFriendRequestTypeEnum.IGNORE.type) {
-//            // 2. 判断如果忽略好友请求，则直接删除好友请求的数据库表记录
-//            userService.deleteFriendRequest(sendUserId, acceptUserId);
-//        } else if (operType == OperatorFriendRequestTypeEnum.PASS.type) {
-//            // 3. 判断如果是通过好友请求，则互相增加好友记录到数据库对应的表
-//            //	   然后删除好友请求的数据库表记录
-//            userService.passFriendRequest(sendUserId, acceptUserId);
-//        }
-//
-//        // 4. 数据库查询好友列表
-//        List<MyFriendsVO> myFirends = userService.queryMyFriends(acceptUserId);
-//
-//        return CaoJSONResult.ok(myFirends);
-//    }
+    @PostMapping("/operFriendRequest")
+    public CaoJSONResult operFriendRequest(String acceptUserId, String sendUserId,
+                                             Integer operType) {
+
+        // 0. acceptUserId sendUserId operType 判断不能为空
+        if (StringUtils.isBlank(acceptUserId)
+                || StringUtils.isBlank(sendUserId)
+                || operType == null) {
+            return CaoJSONResult.errorMsg("");
+        }
+
+        // 1. 如果operType 没有对应的枚举值，则直接抛出空错误信息
+        if (StringUtils.isBlank(OperatorFriendRequestTypeEnum.getMsgByType(operType))) {
+            return CaoJSONResult.errorMsg("");
+        }
+
+        if (operType == OperatorFriendRequestTypeEnum.IGNORE.type) {
+            // 2. 判断如果忽略好友请求，则直接删除好友请求的数据库表记录
+            userService.deleteFriendRequest(sendUserId, acceptUserId);
+        } else if (operType == OperatorFriendRequestTypeEnum.PASS.type) {
+            // 3. 判断如果是通过好友请求，则互相增加好友记录到数据库对应的表
+            //	   然后删除好友请求的数据库表记录
+            userService.passFriendRequest(sendUserId, acceptUserId);
+        }
+
+        // 4. 数据库查询好友列表
+        List<MyFriendsVO> myFirends = userService.queryMyFriends(acceptUserId);
+
+        return CaoJSONResult.ok(myFirends);
+    }
 
     /**
      * @Description: 查询我的好友列表

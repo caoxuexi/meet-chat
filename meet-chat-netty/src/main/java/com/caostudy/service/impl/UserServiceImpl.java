@@ -4,13 +4,19 @@ import com.caostudy.enums.SearchFriendsStatusEnum;
 import com.caostudy.mapper.FriendsRequestMapper;
 import com.caostudy.mapper.MyFriendsMapper;
 import com.caostudy.mapper.UsersMapper;
+import com.caostudy.mapper.UsersMapperCustom;
 import com.caostudy.pojo.FriendsRequest;
 import com.caostudy.pojo.MyFriends;
 import com.caostudy.pojo.Users;
+import com.caostudy.pojo.vo.FriendRequestVO;
+import com.caostudy.pojo.vo.MyFriendsVO;
 import com.caostudy.service.UserService;
 import com.caostudy.utils.FastDFSClient;
 import com.caostudy.utils.FileUtils;
+import com.caostudy.utils.JsonUtils;
 import com.caostudy.utils.QRCodeUtils;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.catalina.User;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +28,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Cao Study
@@ -36,6 +43,8 @@ public class UserServiceImpl implements UserService {
     private MyFriendsMapper myFriendsMapper;
     @Autowired
     private FriendsRequestMapper friendsRequestMapper;
+    @Autowired
+    private UsersMapperCustom usersMapperCustom;
     //注入随机id生成工具类
     @Autowired
     private Sid sid;
@@ -52,19 +61,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean queryUsernameIsExist(String username) {
-        Users user=new Users();
+        Users user = new Users();
         user.setUsername(username);
-        Users result=usersMapper.selectOne(user);
+        Users result = usersMapper.selectOne(user);
 
-        return result!=null?true:false;
+        return result != null ? true : false;
     }
 
     @Override
     public Users queryUserForLogin(String username, String md5Str) {
-        Example userExample=new Example(Users.class);
+        Example userExample = new Example(Users.class);
         Example.Criteria criteria = userExample.createCriteria();
-        criteria.andEqualTo("username",username);
-        criteria.andEqualTo("password",md5Str);
+        criteria.andEqualTo("username", username);
+        criteria.andEqualTo("password", md5Str);
         Users result = usersMapper.selectOneByExample(userExample);
         return result;
     }
@@ -73,17 +82,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public Users saveUser(Users user) {
         //随机生成一个id
-        String userId=sid.nextShort();
+        String userId = sid.nextShort();
 
         // 为每个用户生成一个唯一的二维码
-        String qrCodePath="D:\\meet-chatStorage\\user\\"+userId+"qrcode.png";
-        qrCodeUtils.createQRCode(qrCodePath,"meet_qrcode:"+user.getUsername());
-        MultipartFile qrCodeFile=FileUtils.fileToMultipart(qrCodePath);
+        String qrCodePath = "D:\\meet-chatStorage\\user\\" + userId + "qrcode.png";
+        qrCodeUtils.createQRCode(qrCodePath, "meet_qrcode:" + user.getUsername());
+        MultipartFile qrCodeFile = FileUtils.fileToMultipart(qrCodePath);
 
-        String qrCodeUrl="";
+        String qrCodeUrl = "";
         try {
-            qrCodeUrl=fastDFSClient.uploadQRCode(qrCodeFile);
-        }catch (IOException e){
+            qrCodeUrl = fastDFSClient.uploadQRCode(qrCodeFile);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         user.setQrcode(qrCodeUrl);
@@ -101,7 +110,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    public Users queryUserById(String userId){
+    public Users queryUserById(String userId) {
         return usersMapper.selectByPrimaryKey(userId);
     }
 
@@ -109,21 +118,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public Integer preconditionSearchFriends(String myUserId, String friendUsername) {
         //1.搜索的用户如果不存在，返回[无此用户]
-        Users user=queryUserInfoByUsername(friendUsername);
-        if(user==null){
+        Users user = queryUserInfoByUsername(friendUsername);
+        if (user == null) {
             return SearchFriendsStatusEnum.USER_NOT_EXIST.status;
         }
         //2.搜索帐号是你自己，返回[不能添加自己]
-        if(user.getId().equals(myUserId)) {
+        if (user.getId().equals(myUserId)) {
             return SearchFriendsStatusEnum.NOT_YOURSELF.status;
         }
         //3.搜索的朋友已经是你的好友，返回[该用户已经是你的好友了]
-        Example myFriendsExample=new Example(MyFriends.class);
-        Example.Criteria myFriendsCriteria=myFriendsExample.createCriteria();
-        myFriendsCriteria.andEqualTo("myUserId",myUserId);
-        myFriendsCriteria.andEqualTo("myFriendUserId",user.getId());
+        Example myFriendsExample = new Example(MyFriends.class);
+        Example.Criteria myFriendsCriteria = myFriendsExample.createCriteria();
+        myFriendsCriteria.andEqualTo("myUserId", myUserId);
+        myFriendsCriteria.andEqualTo("myFriendUserId", user.getId());
         MyFriends myFriendsResult = myFriendsMapper.selectOneByExample(myFriendsExample);
-        if(myFriendsResult!=null){
+        if (myFriendsResult != null) {
             return SearchFriendsStatusEnum.ALREADY_FRIENDS.status;
         }
         return SearchFriendsStatusEnum.SUCCESS.status;
@@ -131,17 +140,18 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
-    public Users queryUserInfoByUsername(String username){
-        Example userExample=new Example(Users.class);
-        Example.Criteria userCriteria=userExample.createCriteria();
-        userCriteria.andEqualTo("username",username);
+    public Users queryUserInfoByUsername(String username) {
+        Example userExample = new Example(Users.class);
+        Example.Criteria userCriteria = userExample.createCriteria();
+        userCriteria.andEqualTo("username", username);
         Users users = usersMapper.selectOneByExample(userExample);
         return users;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void sendFriendRequest(String myUserId, String friendUsername) {
-// 根据用户名把朋友信息查询出来
+        // 根据用户名把朋友信息查询出来
         Users friend = queryUserInfoByUsername(friendUsername);
 
         // 1. 查询发送好友请求记录表,判断之前是否已经发送过添加好友请求了
@@ -161,5 +171,57 @@ public class UserServiceImpl implements UserService {
             request.setRequestDateTime(new Date());
             friendsRequestMapper.insert(request);
         }
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public List<FriendRequestVO> queryFriendRequestList(String acceptUserId) {
+        return usersMapperCustom.queryFriendRequestList(acceptUserId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void deleteFriendRequest(String sendUserId, String acceptUserId) {
+        Example fre = new Example(FriendsRequest.class);
+        Example.Criteria frc = fre.createCriteria();
+        frc.andEqualTo("sendUserId", sendUserId);
+        frc.andEqualTo("acceptUserId", acceptUserId);
+        friendsRequestMapper.deleteByExample(fre);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void passFriendRequest(String sendUserId, String acceptUserId) {
+        //保存两个用户互相之间的好友关系，同时删除数据库中的好友请求
+        saveFriends(sendUserId, acceptUserId);
+        saveFriends(acceptUserId, sendUserId);
+        deleteFriendRequest(sendUserId, acceptUserId);
+
+//        Channel sendChannel = UserChannelRel.get(sendUserId);
+//        if (sendChannel != null) {
+//            // 使用websocket主动推送消息到请求发起者，更新他的通讯录列表为最新
+//            DataContent dataContent = new DataContent();
+//            dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
+//
+//            sendChannel.writeAndFlush(
+//                    new TextWebSocketFrame(
+//                            JsonUtils.objectToJson(dataContent)));
+//        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    void saveFriends(String sendUserId, String acceptUserId) {
+        MyFriends myFriends = new MyFriends();
+        String recordId = sid.nextShort();
+        myFriends.setId(recordId);
+        myFriends.setMyFriendUserId(acceptUserId);
+        myFriends.setMyUserId(sendUserId);
+        myFriendsMapper.insert(myFriends);
+    }
+
+    @Override
+    public List<MyFriendsVO> queryMyFriends(String userId) {
+        List<MyFriendsVO> myFirends = usersMapperCustom.queryMyFriends(userId);
+        return myFirends;
     }
 }

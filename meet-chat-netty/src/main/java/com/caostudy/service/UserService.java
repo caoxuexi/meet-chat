@@ -1,6 +1,10 @@
 package com.caostudy.service;
 
 import com.caostudy.pojo.Users;
+import com.caostudy.pojo.vo.FriendRequestVO;
+import com.caostudy.pojo.vo.MyFriendsVO;
+
+import java.util.List;
 
 /**
  * @author Cao Study
@@ -59,4 +63,29 @@ public interface UserService {
      * @param friendUsername
      */
     void sendFriendRequest(String myUserId, String friendUsername);
+
+    /**
+     * 查询添加好友请求
+     * @param  acceptUserId
+     * @return
+     */
+    List<FriendRequestVO> queryFriendRequestList(String acceptUserId);
+
+    /**
+     * @Description: 删除好友请求记录
+     */
+    public void deleteFriendRequest(String sendUserId, String acceptUserId);
+
+    /**
+     * @Description: 通过好友请求
+     * 				1. 保存好友
+     * 				2. 逆向保存好友
+     * 				3. 删除好友请求记录
+     */
+    public void passFriendRequest(String sendUserId, String acceptUserId);
+
+    /**
+     * @Description: 查询好友列表
+     */
+    public List<MyFriendsVO> queryMyFriends(String userId);
 }

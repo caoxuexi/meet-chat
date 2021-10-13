@@ -23,6 +23,10 @@ mapper:
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.caostudy.pojo
+    # 打印所有的sql日志，sql，参数，结果
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 pagehelper:
   helperDialect: mysql
   params: count=countSql
