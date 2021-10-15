@@ -26,4 +26,12 @@
                  u.id = mf.my_friend_user_id
         where mf.my_user_id = #{userId}
     </select>
+
+    <!-- 批处理消息的接受-->
+    <update id="batchUpdateMsgSigned">
+        update chat_msg set sign_flag=1 where id
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
 </mapper>

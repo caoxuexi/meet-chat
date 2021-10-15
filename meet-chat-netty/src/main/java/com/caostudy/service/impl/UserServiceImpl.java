@@ -1,10 +1,12 @@
 package com.caostudy.service.impl;
 
+import com.caostudy.enums.MsgActionEnum;
+import com.caostudy.enums.MsgSignFlagEnum;
 import com.caostudy.enums.SearchFriendsStatusEnum;
-import com.caostudy.mapper.FriendsRequestMapper;
-import com.caostudy.mapper.MyFriendsMapper;
-import com.caostudy.mapper.UsersMapper;
-import com.caostudy.mapper.UsersMapperCustom;
+import com.caostudy.mapper.*;
+import com.caostudy.netty.ChatMsg;
+import com.caostudy.netty.DataContent;
+import com.caostudy.netty.UserChannelRel;
 import com.caostudy.pojo.FriendsRequest;
 import com.caostudy.pojo.MyFriends;
 import com.caostudy.pojo.Users;
@@ -45,6 +47,8 @@ public class UserServiceImpl implements UserService {
     private FriendsRequestMapper friendsRequestMapper;
     @Autowired
     private UsersMapperCustom usersMapperCustom;
+    @Autowired
+    private ChatMsgMapper chatMsgMapper;
     //注入随机id生成工具类
     @Autowired
     private Sid sid;
@@ -197,16 +201,16 @@ public class UserServiceImpl implements UserService {
         saveFriends(acceptUserId, sendUserId);
         deleteFriendRequest(sendUserId, acceptUserId);
 
-//        Channel sendChannel = UserChannelRel.get(sendUserId);
-//        if (sendChannel != null) {
-//            // 使用websocket主动推送消息到请求发起者，更新他的通讯录列表为最新
-//            DataContent dataContent = new DataContent();
-//            dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
-//
-//            sendChannel.writeAndFlush(
-//                    new TextWebSocketFrame(
-//                            JsonUtils.objectToJson(dataContent)));
-//        }
+        Channel sendChannel = UserChannelRel.get(sendUserId);
+        if (sendChannel != null) {
+            // 使用websocket主动推送消息到请求发起者，更新他的通讯录列表为最新
+            DataContent dataContent = new DataContent();
+            dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
+
+            sendChannel.writeAndFlush(
+                    new TextWebSocketFrame(
+                            JsonUtils.objectToJson(dataContent)));
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -219,9 +223,43 @@ public class UserServiceImpl implements UserService {
         myFriendsMapper.insert(myFriends);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public List<MyFriendsVO> queryMyFriends(String userId) {
         List<MyFriendsVO> myFirends = usersMapperCustom.queryMyFriends(userId);
         return myFirends;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public String saveMsg(ChatMsg chatMsg) {
+        com.caostudy.pojo.ChatMsg msgDB = new com.caostudy.pojo.ChatMsg();
+        String msgId = sid.nextShort();
+        msgDB.setId(msgId);
+        msgDB.setAcceptUserId(chatMsg.getReceiverId());
+        msgDB.setSendUserId(chatMsg.getSenderId());
+        msgDB.setCreateTime(new Date());
+        msgDB.setSignFlag(MsgSignFlagEnum.unsign.type);
+        msgDB.setMsg(chatMsg.getMsg());
+
+        chatMsgMapper.insert(msgDB);
+        return msgId;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void updateMsgSigned(List<String> msgIdList) {
+        usersMapperCustom.batchUpdateMsgSigned(msgIdList);
+    }
+
+    @Override
+    public List<com.caostudy.pojo.ChatMsg> getUnReadMsgList(String acceptUserId) {
+        Example chatExample = new Example(com.caostudy.pojo.ChatMsg.class);
+        Example.Criteria chatCriteria = chatExample.createCriteria();
+        chatCriteria.andEqualTo("signFlag", 0);
+        chatCriteria.andEqualTo("acceptUserId", acceptUserId);
+
+        List<com.caostudy.pojo.ChatMsg> result = chatMsgMapper.selectByExample(chatExample);
+        return result;
     }
 }

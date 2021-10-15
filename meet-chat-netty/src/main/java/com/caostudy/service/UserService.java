@@ -1,5 +1,6 @@
 package com.caostudy.service;
 
+import com.caostudy.netty.ChatMsg;
 import com.caostudy.pojo.Users;
 import com.caostudy.pojo.vo.FriendRequestVO;
 import com.caostudy.pojo.vo.MyFriendsVO;
@@ -88,4 +89,17 @@ public interface UserService {
      * @Description: 查询好友列表
      */
     public List<MyFriendsVO> queryMyFriends(String userId);
+
+    /**
+     * 保存聊天消息到数据库
+     */
+    public String saveMsg(ChatMsg chatMsg);
+
+    /**
+     * 批量签收消息
+     * @param msgIdList
+     */
+    public void updateMsgSigned(List<String> msgIdList);
+
+    List<com.caostudy.pojo.ChatMsg> getUnReadMsgList(String acceptUserId);
 }

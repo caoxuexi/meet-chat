@@ -230,34 +230,33 @@ public class UserController {
     /**
      * @Description: 查询我的好友列表
      */
-//    @PostMapping("/myFriends")
-//    public CaoJSONResult myFriends(String userId) {
-//        // 0. userId 判断不能为空
-//        if (StringUtils.isBlank(userId)) {
-//            return CaoJSONResult.errorMsg("");
-//        }
-//
-//        // 1. 数据库查询好友列表
-//        List<MyFriendsVO> myFirends = userService.queryMyFriends(userId);
-//
-//        return CaoJSONResult.ok(myFirends);
-//    }
+    @PostMapping("/myFriends")
+    public CaoJSONResult myFriends(String userId) {
+        // 0. userId 判断不能为空
+        if (StringUtils.isBlank(userId)) {
+            return CaoJSONResult.errorMsg("");
+        }
+
+        // 1. 数据库查询好友列表
+        List<MyFriendsVO> myFirends = userService.queryMyFriends(userId);
+
+        return CaoJSONResult.ok(myFirends);
+    }
 
     /**
-     *
      * @Description: 用户手机端获取未签收的消息列表
      */
-//    @PostMapping("/getUnReadMsgList")
-//    public CaoJSONResult getUnReadMsgList(String acceptUserId) {
-//        // 0. userId 判断不能为空
-//        if (StringUtils.isBlank(acceptUserId)) {
-//            return CaoJSONResult.errorMsg("");
-//        }
-//
-//        // 查询列表
-//        List<ChatMsg> unreadMsgList = userService.getUnReadMsgList(acceptUserId);
-//
-//        return CaoJSONResult.ok(unreadMsgList);
-//    }
+    @PostMapping("/getUnReadMsgList")
+    public CaoJSONResult getUnReadMsgList(String acceptUserId) {
+        // 0. userId 判断不能为空
+        if (StringUtils.isBlank(acceptUserId)) {
+            return CaoJSONResult.errorMsg("");
+        }
+
+        // 查询列表
+        List<ChatMsg> unreadMsgList = userService.getUnReadMsgList(acceptUserId);
+
+        return CaoJSONResult.ok(unreadMsgList);
+    }
 }
 
