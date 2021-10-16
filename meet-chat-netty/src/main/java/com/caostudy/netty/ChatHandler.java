@@ -115,6 +115,8 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         // 当触发handlerRemoved，ChannelGroup会自动移除对应客户端的channel
+        String channelId=ctx.channel().id().asShortText();
+        System.out.println("客户端被移除，channelId为:"+channelId);
         users.remove(ctx.channel());
 
     }

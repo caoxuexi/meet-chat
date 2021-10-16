@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 /**
  * @author Cao Study
@@ -24,7 +25,7 @@ public class WSServerInitialzer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new ChunkedWriteHandler());
         // 对httpMessage进行聚合，聚合成FullHttpRequest或FullHttpResponse
         // 几乎在netty中的编程，都会使用到此hanler
-        pipeline.addLast(new HttpObjectAggregator(1024*64));
+        pipeline.addLast(new HttpObjectAggregator(1024 * 64));
 
         // ====================== 以上是用于支持http协议    ======================
 
@@ -40,5 +41,10 @@ public class WSServerInitialzer extends ChannelInitializer<SocketChannel> {
 
         // 自定义的handler
         pipeline.addLast(new ChatHandler());
+
+        //配置读写空闲事件触发器，读20s，写40s，全空闲60s
+        pipeline.addLast(new IdleStateHandler(20, 40,60 ));
+        //心跳handler
+        pipeline.addLast(new HeartBeatHandler());
     }
 }
