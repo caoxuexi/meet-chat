@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/header.css" rel="stylesheet" />
+		<link rel="stylesheet" href="fontico/iconfont.css" />
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+			mui.plusReady(function() {
+				plus.navigator.setStatusBarStyle("light");
+				plus.navigator.setStatusBarBackground('#C9394A')
+			})
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav title">
+			<h1 class="mui-title title-color" id="meet_title"><b>遇见</b></h1>
+		</header>
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" tabindex="0">
+				<span class="mui-icon iconfont icon-fire"></span>
+				<span class="mui-tab-label">聊天</span>
+			</a>
+			<a class="mui-tab-item" tabindex="1">
+				<span class="mui-icon iconfont icon-tongxunlu"></span>
+				<span class="mui-tab-label">通讯录</span>
+			</a>
+			<a class="mui-tab-item" tabindex="2">
+				<span class="mui-icon iconfont icon-zhinanzhen1"></span>
+				<span class="mui-tab-label">发现</span>
+			</a>
+			<a class="mui-tab-item" tabindex="3">
+				<span class="mui-icon iconfont icon-wode-active"></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+		</nav>
+
+        <script type="text/javascript">
+            var meetArray = [{
+                    pageId: "meet-chatlist.html",
+                    pageUrl: "meet-chatlist.html"
+                },
+                {
+                    pageId: "meet-contact.html",
+                    pageUrl: "meet-contact.html"
+                },
+                {
+                    pageId: "meet-discover.html",
+                    pageUrl: "meet-discover.html"
+                },
+                {
+                    pageId: "meet-me.html",
+                    pageUrl: "meet-me.html"
+                }
+            ];
+
+            //设置生成的webview的样式
+            var meetStyle = {
+                top: "44px",
+                bottom: "50px"
+            }
+
+            mui.plusReady(function() {
+                //禁止返回到登录注册页面
+                mui.back = function() {
+                    return false;
+                }
+
+                // 对网络连接进行事件监听
+                netChangeSwitch();
+
+                //获取当前页面的webView对象
+                var indexWebview = plus.webview.currentWebview()
+                // 向当前的主页webview追加子页的4张webview对象
+                for (var i = 0; i < meetArray.length; i++) {
+                    var meetPage = plus.webview.create(meetArray[i].pageUrl,
+                        meetArray[i].pageId, meetStyle)
+                    //创建后隐藏webview窗口
+                    meetPage.hide()
+                    // 追加每一个子页面到当前主页面
+                    indexWebview.append(meetPage)
+                }
+                // 默认显示第一个webview
+                plus.webview.show(meetArray[0].pageId);
+
+                // 批量绑定tap事件，展示不同的页面
+                mui(".mui-bar-tab").on("tap", "a", function() {
+                    var tabindex = this.getAttribute("tabindex");
+                    // 显示点击的tab选项所对应的页面，动画效果fade-in，动画持续200ms
+                    plus.webview.show(meetArray[tabindex].pageId, "fade-in", 200)
+                    //不是点击tab所对应的webview，我们让其hide
+                    for (var i = 0; i < meetArray.length; i++) {
+                        if (i != tabindex) {
+                            plus.webview.hide(meetArray[i].pageId, 'fade-out', 200)
+                        }
+                    }
+                })
+                //延时加载
+                setTimeout("initData()", "1000");
+            })
+
+            //预加载
+            function initData() {
+                var meet_chatlist = plus.webview.getWebviewById("meet-chatlist.html");
+                var meet_me = plus.webview.getWebviewById("meet-me.html");
+				mui.fire(meet_chatlist, "refresh")
+                mui.fire(meet_me, "refresh")
+            }
+
+			// 监听网络状态更改
+			function netChangeSwitch(){
+				document.addEventListener("netchange",function (){
+					var connectionStatus = plus.networkinfo.getCurrentType();
+					// 0是网络状态未知，1是未连接网络
+					if (connectionStatus != 0 && connectionStatus != 1) {
+						//重新打开网络连接
+						let meet_title=document.getElementById("meet_title");
+						meet_title.innerHTML="<b>遇见</b>";
+
+					}else{
+						//关闭网络连接
+						let meet_title=document.getElementById("meet_title");
+						meet_title.innerHTML="<b>遇见(未连接)</b>";
+					}
+				})
+			}
+        </script>
+	</body>
+</html>
