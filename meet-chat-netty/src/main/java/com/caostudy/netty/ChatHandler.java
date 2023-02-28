@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    // 用于记录和管理所有客户端的channle
+    // 用于记录和管理所有客户端的channel
     public static ChannelGroup users =
             new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
@@ -105,7 +105,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
     /**
      * 当客户端连接服务端之后（打开连接）
-     * 获取客户端的channle，并且放到ChannelGroup中去进行管理
+     * 获取客户端的channel，并且放到ChannelGroup中去进行管理
      */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -118,7 +118,6 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         String channelId=ctx.channel().id().asShortText();
         System.out.println("客户端被移除，channelId为:"+channelId);
         users.remove(ctx.channel());
-
     }
 
     @Override
